@@ -11,5 +11,5 @@ wget 198.82.18.138/floor3.jpg ;\
 wget 198.82.18.138/floor4.jpg ;\
 ```
 
-and so on.   We made lots more edits, but that's where is started.
+and so on.   We made lots more edits, but that's where we started.
 
