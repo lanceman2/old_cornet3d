@@ -118,10 +118,10 @@ app.debug = True
 socketio = SocketIO(app)
 
 
-@app.route('/<path:path>', methods=["GET"])
-@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+@app.route('/<path:path>', methods=["GET"], defaults={'file': 'index.html'})
+#@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def static_file(path):
-    return app.send_static_file(path)
+    return app.send_static_file('htdocs', path)
 
 
 #####################################
@@ -691,9 +691,9 @@ class CORNET_3D_CRTS:
 
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option('-p', '--port', type='int', default=8888)
+    parser.add_option('-p', '--port', type='int', default=8889)
     (options, args) = parser.parse_args()
 
     print "Running Lance's (HI) version on port", options.port
-    socketio.run(app, host = '0.0.0.0', port=options.port)
+    socketio.run(app, host='0.0.0.0', port=options.port)
     print "Do we ever reach this point in the code (HI)"
