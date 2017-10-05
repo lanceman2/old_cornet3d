@@ -1232,17 +1232,35 @@ return d.opacity;
         thisModule.launchTutorial = function(lastDigitsIP, parameters) {
 		var crtsParams={};
 		crtsParams.nodeID = parseInt(lastDigitsIP);
-		//crtsParams.txNodeID = parseInt(document.getElementById('tx_node_crts_options').value)%7000 + 10;
-		//crtsParams.rxNodeID = parseInt(document.getElementById('rx_node_crts_options').value)%7000 + 10;
-		//Temporary hard coding for demo
-		crtsParams.txNodeID = 47;
-		crtsParams.rxNodeID = 48;
 		crtsParams.params = parameters;
 		socket.emit('launchTutorial', crtsParams);
 		
 		// Get the response from the server
 		socket.on('crtsMetrics', function(data) {
 			console.log('CRTS METRICS: '+data.toString());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		});
 	}
         
