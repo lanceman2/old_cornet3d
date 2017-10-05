@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -ex
+
+hostname="$(hostname)"
+[ "$hostname" = viz3 ] || exit 1
+
+cd $(dirname ${BASH_SOURCE[0]})
+cd ..
+
+# we copy recursively and let any remote symlinks to
+# directories stay as they are, hence the --keep-dirlinks
+rsync -rv -e "ssh -p 9000" -t --exclude .git --keep-dirlinks \
+ old_cornet3d/ kermit.wireless.vt.edu:old_cornet3d/
+
