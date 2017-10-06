@@ -679,7 +679,7 @@ class CORNET_3D_CRTS:
             if s.login(sshAddress, 'cornet3d-user', ''):
                 # Run the commands required to launch the CRTS
                 print "Launching CRTS controller at node", sshAddress
-                command = 'cd ~/src/crts; python scenarios/utility_scenarios/cornet_3d_change_scenario.py ' + scenarioFile + ' '
+                command = 'cd ~/git/old_cornet3d/crts; python scenarios/utility_scenarios/cornet_3d_change_scenario.py ' + scenarioFile + ' '
                 for ip in IPs:
                     command = command + ip + ' '
                 command = command + '&'
