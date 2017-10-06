@@ -117,11 +117,14 @@ app.debug = True
 
 socketio = SocketIO(app)
 
-
+# flask BUG:
+# this will not work unless the directory is named static
 @app.route('/<path:filename>', methods=["GET"])
 def static_file(filename):
     return send_from_directory("static", filename)
 
+# flask BUG:
+# this will not work unless the directory is named static
 @app.route('/')
 def index():
   return send_from_directory("static", 'index.html')
@@ -697,6 +700,6 @@ if __name__ == '__main__':
     parser.add_option('-p', '--port', type='int', default=8889)
     (options, args) = parser.parse_args()
 
-    print "\nTry: firefox http://kermit.wireless.vt.edu:8889/"
+    print "\nTry: firefox http://kermit.wireless.vt.edu:" + str(options.port) + "/\n\n"
     socketio.run(app, host='0.0.0.0', port=options.port)
     print "Do we ever reach this point in the code"
