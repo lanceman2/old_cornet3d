@@ -12,7 +12,7 @@
 import sys
 
 # 'Flask' libraries for web socket programming with the client/web-browser
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from flask.ext.socketio import SocketIO, emit
 from flask_socketio import join_room, leave_room
 import flask
@@ -118,10 +118,13 @@ app.debug = True
 socketio = SocketIO(app)
 
 
-@app.route('/<path:path>', methods=["GET"], defaults={'file': 'index.html'})
-#@cross_origin(origin='*',headers=['Content-Type','Authorization'])
-def static_file(path):
-    return app.send_static_file('htdocs', path)
+@app.route('/<path:filename>', methods=["GET"])
+def static_file(filename):
+    return send_from_directory("static", filename)
+
+@app.route('/')
+def index():
+  return send_from_directory("static", 'index.html')
 
 
 #####################################
@@ -694,6 +697,6 @@ if __name__ == '__main__':
     parser.add_option('-p', '--port', type='int', default=8889)
     (options, args) = parser.parse_args()
 
-    print "Running Lance's (HI) version on port", options.port
+    print "\nTry: firefox http://kermit.wireless.vt.edu:8889/"
     socketio.run(app, host='0.0.0.0', port=options.port)
-    print "Do we ever reach this point in the code (HI)"
+    print "Do we ever reach this point in the code"
