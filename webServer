@@ -231,7 +231,7 @@ def startSpectrum(initParams):
 
     print '\n**************************************'
     print time.strftime('%x %X')
-    print 'Attempting to connect to', nodeIPv4Address
+    print 'Attempting to connect to', nodeIPv4Address + ':' + str(tcpSpectrumPort)
     
     # Update the sockets to nodes mapping
     socketsToNodesMap[request.namespace.socket.sessid] = nodeID
@@ -289,18 +289,22 @@ def startSpectrum(initParams):
 #Restarts the spectrum sensing script on a node in case it goes down for some reason
 def restart_spectrum_sensing(nodeIP):
     print 'restarting spectrum_sensing on node:' + str(nodeIP)
+    # TODO: Remove the use of this hard coded path piece: /git/old_cornet3d/
     run = 'nohup /users/' +\
-        os.environ['USER'] + '/git/old_cornet3d/spectrum_sensing' +\
+        os.environ['USER'] + '/git/old_cornet3d/spectrumSensing' +\
         ' -f 751000000 -b 12000000 -n 256 -r 2 -p ' +\
         str(tcpSpectrumPort) +\
         ' >/dev/null 2>&1 &'
     print run
     p = pxssh.pxssh()
-    p.login(nodeIP, os.environ['USER'], '')
-    p.sendline(run)
-    p.prompt()
-    p.logout()
-    time.sleep(1)
+    try:
+        p.login(nodeIP, os.environ['USER'], '')
+        p.sendline(run)
+        p.prompt()
+        p.logout()
+        time.sleep(1)
+    except Exception as e:
+        print "Exception:", e
 
 
 # Socket.io event handling for getting metrics

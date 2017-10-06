@@ -7,7 +7,6 @@ struct num_nodes_struct
     int num_nodes;
 };
 
-#if 0
 struct feedback_struct
 {
     int type;
@@ -15,7 +14,6 @@ struct feedback_struct
     float frequency;
     float bandwidth;
 };
-#endif
 
 struct node_struct
 {

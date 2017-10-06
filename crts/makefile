@@ -54,12 +54,6 @@ install:
 uninstall:
 	rm -rf /etc/sudoers.d/crts
 
-.PHONY: doc
-doc:
-	$(MAKE) -C doc all
-cleandoc:
-	$(MAKE) -C doc clean
-
 clean:
 	rm -rf lib/*.o
 	rm -rf crts_cognitive_radio
@@ -68,7 +62,6 @@ clean:
 	rm -rf logs/convert_logs_bin_to_octave
 	rm -rf config_cognitive_engines
 	rm -rf config_scenario_controllers
-	$(MAKE) -C doc clean
 
 #EDIT CE COMPILATION START FLAG
 lib/CE_Template.o: cognitive_engines/CE_Template/CE_Template.cpp cognitive_engines/CE_Template/CE_Template.hpp cognitive_engines/example_engines/CE_Mod_Adaptation/src/Mod_Select.cpp cognitive_engines/example_engines/CE_FEC_Adaptation/src/FEC_Select.cpp cognitive_engines/src/AMC.cpp 
