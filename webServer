@@ -676,7 +676,7 @@ class CORNET_3D_CRTS:
         try:
             # SSH to this node
             s = pxssh.pxssh()
-            if s.login(sshAddress, 'cornet3d-user', ''):
+            if s.login(sshAddress, os.environ['USER'], ''):
                 # Run the commands required to launch the CRTS
                 print "Launching CRTS controller at node", sshAddress
                 command = 'cd ~/git/old_cornet3d/crts; python scenarios/utility_scenarios/cornet_3d_change_scenario.py ' + scenarioFile + ' '
