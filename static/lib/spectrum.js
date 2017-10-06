@@ -42,7 +42,7 @@ var spectrum = (function () {
 	var scaleFactor=0.5;
 	var scaleOffset=4;
 	var socket;
-	var crtsSocket;
+	//var crtsSocket;
 	//in MHZ
 	var centerF_=855;
 	thisModule.bandwidth_=12;
@@ -583,7 +583,7 @@ return d.opacity;
 		//fitToContainer(document.getElementById('layer2'));
 
 		//WebSockets
-		socket = io.connect('128.173.221.40:8888');
+		socket = io.connect('');
 		thisModule.connected = true;
 		prevTime = 0;
 		period = (800/transParams.r);
@@ -1237,8 +1237,17 @@ return d.opacity;
 		
 		// Get the response from the server
 		socket.on('crtsMetrics', function(data) {
-			console.log('CRTS METRICS: '+data.toString());
+			console.log('CRTS METRICS: ' + data.toString());
 
+            /* The data is:
+             * 
+             *           int 'node',
+             *           float current 'throughput',
+             *           float current Packet Error Rate 'per',
+             *           float 'totalBytes'
+             */
+
+            
 
 
 

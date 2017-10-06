@@ -30,21 +30,25 @@
                           }
                         
 			var corStatus = (function () {
-				var socket;
-				var result;
+				//var socket;
+				//var result;
 				var m_nodes;
 				var m_floors;
 				var m_floorAlreadyClicked=false;
 				//var m_fullscreen=false;
-				
+
+                // TODO: fix stupid hard coded IP address and port
+                var url = 'http://128.173.221.40:8890/crts_status_xxx';
+                console.log('Requesting: ' + url);
 				function ajaxReq() {
 					var req = $.ajax({
-						url: 'http://128.173.221.40/status',
+                        url: url,
 						dataType: "jsonp",
 						timeout: 35000
 					});
+                    console.log('Requested: ' + url);
 					req.success(function (data) {
-                                                g_availableNodesIndexArray = []; 
+                        g_availableNodesIndexArray = []; 
 						for (var i=0; i<m_nodes.length; i++) {
 							if (data[i]==2) {
 								document.getElementById(m_nodes[i]).setAttribute('diffuseColor', '0 1 0'); 
@@ -56,7 +60,7 @@
 								
 							}
 							/*else if (data[i]==1) {
-								socket.emit('check_for_clients', i+11);
+								//socket.emit('check_for_clients', i+11);
 								//alert(i + 11);
 								if(i == 38)
 								{
@@ -69,7 +73,7 @@
 								 
 							}*/
 						}
-                                                RefreshSelectNodeTable(); 
+                        RefreshSelectNodeTable(); 
 					});
 					req.error(function (data, string1, string2) {
 					
@@ -79,10 +83,12 @@
 				thisModule.initialize = function (nodes, floors) {
 					m_nodes=nodes;
 					m_floors=floors;
-					socket = io.connect('128.173.221.40:8888');
+
+					/* socket = io.connect('128.173.221.40:8888');
 					socket.on('viewer_connected', function(data) {
 					result = data;
-					});	
+					});
+                    */
 					ajaxReq();
 					
 					for (var i=0; i<m_nodes.length; i++) {	

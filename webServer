@@ -57,7 +57,7 @@ for i in range(noOfNodes):
 # Port numbers used
 crtsTxPort 	= 6008
 crtsRxPort 	= 6018
-tcpSpectrumPort = 5000
+tcpSpectrumPort = 5023
 
 # Buffer sizes for the TCP communication
 bufferSizeRecPacket 	= 102400
@@ -120,6 +120,7 @@ socketio = SocketIO(app)
 # flask BUG:
 # this will not work unless the directory is named static
 @app.route('/<path:filename>', methods=["GET"])
+#@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def static_file(filename):
     return send_from_directory("static", filename)
 
@@ -287,9 +288,16 @@ def startSpectrum(initParams):
 
 #Restarts the spectrum sensing script on a node in case it goes down for some reason
 def restart_spectrum_sensing(nodeIP):
+    print 'restarting spectrum_sensing on node:' + str(nodeIP)
+    run = 'nohup /users/' +\
+        os.environ['USER'] + '/git/old_cornet3d/spectrum_sensing' +\
+        ' -f 751000000 -b 12000000 -n 256 -r 2 -p ' +\
+        str(tcpSpectrumPort) +\
+        ' >/dev/null 2>&1 &'
+    print run
     p = pxssh.pxssh()
-    p.login(nodeIP, 'monitor', '')
-    p.sendline('nohup python spectrum_sensing.py -f 751000000 -b 12000000 -n 256 -r 2 >/dev/null 2>&1 &')
+    p.login(nodeIP, os.environ['USER'], '')
+    p.sendline(run)
     p.prompt()
     p.logout()
     time.sleep(1)
@@ -574,7 +582,7 @@ def scoreboardThreadRunner(nodeID):
         if not receivedData: 
             break;
         else:
-            unpacked = struct.unpack('=iiff', receivedData)
+            unpacked = struct.unpack('=iifff', receivedData)
             #unpacked[0] will hold the type of feedback
             #0 = packet error rate
             if unpacked[0] == 0: # as defined in SC_CORNET_Display.cpp
@@ -599,6 +607,7 @@ def scoreboardThreadRunner(nodeID):
                 #join_room(room)
                 socketio.emit('throughputUpdate', new_throughput_data, room=room)
                 new_throughput_data['per'] = unpacked[3]
+                new_throughput_data['totalBytes'] = unpacked[4]
                 socketio.emit('crtsMetrics',  new_throughput_data, room=room)
                 if not gotThroughPut:
                     print 'starting throughput update:', str(new_throughput_data)
@@ -624,18 +633,6 @@ def getClientsConnected():
 	print 'Connected Users list: ' + str(set(clients))
 	emit('users_rsp', str(set(clients)))
 
-# Socket.io event for checking a node for existing viewing clients
-# I was trying to let multiple people view the spectrum at the same time
-# but never found the time to finish it
-@socketio.on('check_for_clients')
-def check_for_connected_user(nodeID):
-    for ip, node in clients:
-        if node == nodeID:
-            print 'emitting 1 for node', nodeID
-            emit('viewer_connected', 1)
-            return
-    print 'emitting 0 for node', nodeID
-    emit('viewer_connected', 0)
 
 # Class which validates parameters and IPv4 address
 class CORNET_3D_ValidateParameters:

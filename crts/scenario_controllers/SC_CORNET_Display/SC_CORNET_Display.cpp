@@ -103,10 +103,17 @@ void SC_CORNET_Display::execute() {
     //not when execute is called due to a timeout
     if(sc_event == FEEDBACK)
     {
-        feedback_struct fs;
+        struct
+        {
+            int type;
+            int node;
+            float frequency;
+            float bandwidth;
+            float totalBytes;
+        } fs;
+
         switch (fb.fb_type) 
         {
-
           //When frequency or bandwidth changes, send a message to the cornet backend 
           //so it can update the scoreboard display
           case CRTS_TX_FREQ:
@@ -134,6 +141,8 @@ void SC_CORNET_Display::execute() {
           // to the cornet backend so it can update the display
           case CRTS_RX_STATS:
               {
+                static float counter = 0;
+                counter += 1;
                 struct ExtensibleCognitiveRadio::rx_statistics rx_stats = 
                     *(struct ExtensibleCognitiveRadio::rx_statistics*) fb.arg;
                 // Set the type to 2 for statistics updates
@@ -143,6 +152,7 @@ void SC_CORNET_Display::execute() {
                 // TODO: Create a new struct type for sending throughput
                 fs.frequency = rx_stats.throughput;
                 fs.bandwidth = rx_stats.per;
+                fs.totalBytes = counter; // TODO
                 send(TCP_CORNET_Display, (char*)&fs, sizeof(fs), 0);
                 printf("node: %u, throughput: %f per: %f\n", fb.node, rx_stats.throughput, rx_stats.per);
                 break;
