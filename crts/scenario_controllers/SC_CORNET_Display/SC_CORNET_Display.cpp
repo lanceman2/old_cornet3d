@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <liquid/liquid.h>
 #include <limits.h>
@@ -108,10 +109,15 @@ void SC_CORNET_Display::execute() {
         {
             int type;
             int node;
-            float frequency;
-            float bandwidth;
-            float totalBytes;
+            float frequency; // or throughput
+            float bandwidth; // or PER
+            float totalThroughput;
+            float totalPER;
         } fs;
+
+        fs.totalThroughput = 0.0F;
+        fs.totalPER = 0.0F;
+
 
         switch (fb.fb_type) 
         {
@@ -153,7 +159,10 @@ void SC_CORNET_Display::execute() {
                 // TODO: Create a new struct type for sending throughput
                 fs.frequency = rx_stats.throughput;
                 fs.bandwidth = rx_stats.per;
-                fs.totalBytes = counter; // TODO
+                // TODO: next two values are bogus for testing
+                fs.totalThroughput = counter;
+                fs.totalPER = 0.0F + fmod(counter, 100.0F)/1000.0F;
+
                 send(TCP_CORNET_Display, (char*)&fs, sizeof(fs), 0);
                 printf("node: %u, throughput: %f per: %f\n", fb.node, rx_stats.throughput, rx_stats.per);
                 break;
