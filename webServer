@@ -46,6 +46,13 @@ from time import gmtime, strftime
 ##############################################
 # INITIALIZATIONS AND DECLARATIONS
 ##############################################
+import inspect
+def LINE():
+    try:
+        raise Exception
+    except:
+        return 'line:' + str(sys.exc_info()[2].tb_frame.f_back.f_lineno) + ':'
+
 
 noOfNodes = 58
 # Initialize all the TCP sockets
@@ -176,9 +183,11 @@ def receiveDataFromCRTSController(nodeID):
 # the CRTS scenario controller. 
 crtsInitialSocket = 0
 crtsInitialSocketConnected = False
-def createSocketToController(nodeID, port=4444):
+def createSocketToController(nodeID, port):
     global crtsInitialSocket
     global crtsInitialSocketConnected
+    # This server on this port talks to crts_controller with
+    # scenario_controllers module SC_CORNET.cpp
     try: #Create the first socket after the backend is started 
         if crtsInitialSocketConnected == False:
             print 'creating initial socket'
@@ -196,7 +205,7 @@ def createSocketToController(nodeID, port=4444):
             print 'initial socket already created'
             
         read_list = [crtsInitialSocket]
-        print 'socket created, waiting to accept'
+        print LINE(), 'socket created, waiting to accept on port:', str(port)
         while True:
             readable, writable, errored = select.select(read_list, [], [], .5)
             for s in readable:
@@ -206,7 +215,7 @@ def createSocketToController(nodeID, port=4444):
                     crtsControllerConnected[nodeID] = True
                     return
     except Exception as e:
-        print 'Error connecting to controller: ', e
+        print 'Error accepting connection from controller: ', e
 
 
 def getRoom(nodeID):
@@ -505,7 +514,7 @@ def launchTutorial(crtsParams):
         shutdown[nodeID] = False
         #Start tutorial by creating communcations threads and using ssh to start CRTS_controller on cornet node
         if crtsControllerConnected[nodeID] == False:
-            socket_listener_threads[nodeID] = threading.Thread(target=createSocketToController, args=(nodeID, 4444, ))
+            socket_listener_threads[nodeID] = threading.Thread(target=createSocketToController, args=(nodeID, 4445, ))
             socket_listener_threads[nodeID].start()
             crtsCORNET3D.launchCRTSTutorial(nodeID, scenarioFile, IPs)
             print 'crts launched'
@@ -529,7 +538,7 @@ def launchTutorial(crtsParams):
             print 'currentNodeId:', myParams['currentNodeId']
     except Exception as e:
         print "Exception inside transmitter communication: ", nodeID
-        print "Error: ",e
+        print LINE(), "Error: ",e
         join_room(room)
         emit('crtsLaunchResponse', 'Please choose another node as transmitter. There is a communication issue with the transmitter',room=room)
 
@@ -568,7 +577,9 @@ def scoreboardThreadRunner(nodeID):
                 #append node data to list to send to front end
                 list_of_nodes.append({'team_name':team_name,'frequency':frequency, 'bandwidth':bandwidth, 'role':role, 'node':node})
         except Exception as e:
-            print 'e:', e
+            print LINE(), 'Exception e:', e
+            closeTCPConnection(nodeID)
+            return
     print 'list_of_nodes: ', list_of_nodes
    # join_room(room)
    #send list of nodes to front end so it can setup scoreboard display
@@ -678,22 +689,21 @@ class CORNET_3D_CRTS:
             s = pxssh.pxssh()
             if s.login(sshAddress, os.environ['USER'], ''):
                 # Run the commands required to launch the CRTS
-                print "Launching CRTS controller at node", sshAddress
                 command = 'cd ~/git/old_cornet3d/crts; python scenarios/utility_scenarios/cornet_3d_change_scenario.py ' + scenarioFile + ' '
+                print "Launching CRTS controller at node", sshAddress
                 for ip in IPs:
                     command = command + ip + ' '
                 command = command + '&'
-                print 'command:', command
+                print LINE(), 'command:', command
                 s.sendline(command)
                 s.prompt()
                 s.logout()
                 time.sleep(3)
             else:
-                print "Unable to login to the controller node for launching CRTS."
+                print "Unable to login to the controller node", sshAddress, "for launching CRTS."
         except Exception as e:
-            print "Exception caused while launching controllder on SSH."
-	    print "here 2"
-            print "Error: ", e
+            print "Exception caused while launching controller via SSH."
+            print LINE(), "Error:", e
 
 
 if __name__ == '__main__':

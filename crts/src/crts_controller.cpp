@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
   // Use current username as default username for ssh
   const char* ssh_uname = std::getenv("LOGNAME");
 
-  // Use currnet location of CRTS Directory as defualt for ssh
+  // Use currnet location of CRTS Directory as default for ssh
   char crts_dir[1000];
   getcwd(crts_dir, 1000);
 

@@ -117,5 +117,5 @@ var server = http.createServer(function (request, response) {
 server.listen(8890);
 
 // TODO: get IP address or domain name at runtime.
-console.log("\nTry:  http://128.173.221.40:8890/\n\n");
+console.log("\nTry:  http://128.173.221.40:8890/crts_status_xxx\n\n");
 

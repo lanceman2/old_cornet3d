@@ -20,8 +20,9 @@ SC_CORNET_Display::SC_CORNET_Display(int argc, char** argv) {
   struct sockaddr_in addr;
   memset(&addr, 0, sizeof(addr));
   addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = inet_addr(CORNET_Display_IP);
-  addr.sin_port = htons(CORNET_Display_PORT);
+  // "192.168.1.103" is the IP address of kermit behind the firewall
+  addr.sin_addr.s_addr = inet_addr("192.168.1.103");
+  addr.sin_port = htons(4445/*port number*/);
 
   // Establish network connection with CORNET-3D backend
   int connect_status = 1;
