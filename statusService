@@ -92,7 +92,10 @@ var server = http.createServer(function (request, response) {
     var b = new Barrier(function() {
 	    console.log("Barrier reached");
 	    var arrayResults=[];
+        // make the first 12 nodes look like failures
+        var skip = 12;
 	    for (var key in results) {
+            if(skip !== 0) { results[key] = 1; --skip; }
 		    console.log(key, results[key] + '\r\n');
 	    	arrayResults.push(results[key]);
 	    }
@@ -107,7 +110,7 @@ var server = http.createServer(function (request, response) {
 	});
 
 	for (var i=ipNumbersStartFrom; i<IPsEnd; i++)
-		results['192.168.1.'+i]=1;
+		results['192.168.1.'+i]=0;
 
 	for (var i=ipNumbersStartFrom; i<IPsEnd; i++)
         sshTo('192.168.1.'+i,'user','pass',  'uhd_find_devices', b);

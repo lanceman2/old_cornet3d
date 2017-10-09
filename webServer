@@ -590,13 +590,15 @@ def scoreboardThreadRunner(nodeID):
     gotThroughPut = False
     while scoreboardConnected == True:
 
-
-
-        receivedData = crtsControllerSockets[nodeID].recv(16)
+        receivedData = crtsControllerSockets[nodeID].recv(20)
         #print 'len(receivedData):', len(receivedData)
         if not receivedData: 
-            break;
+            break
+        elif len(receivedData) != 20:
+            print LINE(), 'read:', str(len(receivedData)), 'bytes  not 20'
+            continue
         else:
+            #print LINE(), 'read:', str(len(receivedData))
             unpacked = struct.unpack('=iifff', receivedData)
             #unpacked[0] will hold the type of feedback
             #0 = packet error rate
