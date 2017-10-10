@@ -529,9 +529,9 @@ and open the template in the editor.
             top: 35px; 
             left:10px; 
             display: block;
-            height:  65px;
+            //height:  65px;
             line-height: 1.5em;
-            width: 215px; 
+            width: 278px; 
             background-color: white; 
             border: 2px solid #50B0D0; 
         }   
@@ -557,9 +557,17 @@ and open the template in the editor.
        }
         
         .PM_border {
-            border-bottom: 1px solid #dcdcdc; 
+            border-bottom: 4px solid #dcdcdc;
+            padding: 3px;
         }
-        
+
+        div.PM_title {
+            padding: 10px;
+            background-color: #22B6E8;
+            border-color: #22B6E8;
+            border-radius: 14px;
+        }
+
         .PM_Label {
             display: inline-block;
             width: 70%;

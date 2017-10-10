@@ -578,6 +578,7 @@ return d.opacity;
 		m_count=0;
 		m_showfloors=show_floors;
 		m_showStatus=showStatus;
+        m_teamNames = {}; // key is node that is passed in in 'crtsMetrics'
 		m_overlay=selOverlay(document.getElementById('layer2'), leftGraphMargin, rightGraphMargin);
 		
 		//fitToContainer(document.getElementById('layer2'));
@@ -683,6 +684,12 @@ return d.opacity;
                                 }
                                 
                             }
+
+                        // TODO: This code totally sucks:  We need the
+                        // team names elsewhere.
+                        for(var i=0; i<teams_names.length; ++i)
+                            m_teamNames[(i+1).toString()] = teams_names[i];
+
                         //
                         trans_x = [];
                         for (var i =0; i<data.length; ++i){
@@ -1237,42 +1244,73 @@ return d.opacity;
 		
 		// Get the response from the server
 		socket.on('crtsMetrics', function(data) {
-			console.log('CRTS METRICS: ' + data.toString());
 
-            /* The data is:
-             * 
-             *           int 'node',
-             *           float current 'throughput',
-             *           float current Packet Error Rate 'per',
-             *           float 'totalBytes'
-             */
+            /*
+			console.log('CRTS METRICS: node ' + data.node + '\n' +
+                '     throughput: ' + data.throughput + '\n' +
+                '            per: ' + data.per + '\n' +
+                'totalThroughput: ' + data.totalThroughput + '\n' +
+                '       totalPER: ' + data.totalPER + '\n');
+            */
 
-            
+            var node = data.node.toString();
 
+            if(data.node === undefined ||
+                data.throughput === undefined ||
+                data.per === undefined ||
+                data.totalThroughput === undefined ||
+                data.totalPER === undefined) {
+                alert("Bad 'crtsMetrics' recieved");
+                return;
+            }
 
+            function create4NumberDisplays() {
 
+                function createNumberDisplay(name, label) {
 
+                    var divSection = document.createElement('div');
+                    divSection.className = "PM_Row";
+                    var div = document.createElement('div');
+                    div.className = "PM_Label";
+                    div.innerHTML = label;
+                    divSection.appendChild(div);
+                    div = document.createElement('div');
+                    div.className = "PM_Data";
+                    div.innerHTML = data[name].toString();
+                    div.id = node + '_' + name;
+                    divSection.appendChild(div);
+                    return divSection;
+                }
 
+                var divOuter = document.createElement('div');
+                divOuter.className = "PM_border";
+                var title = document.createElement('div');
+                title.className = "PM_title";
+                title.innerHTML = "Received on Node " + node + ' - ' + m_teamNames[node];
+                divOuter.appendChild(title);
+                divOuter.appendChild(createNumberDisplay('throughput', 'Throughput (bps)'));
+                divOuter.appendChild(createNumberDisplay('per', 'Packet Error Rate'));
+                divOuter.appendChild(createNumberDisplay('totalThroughput', 'Total Throughput (bps)'));
+                divOuter.appendChild(createNumberDisplay('totalPER', 'Total Packet Error Rate'));
+                document.getElementById("performanceMetricDiv").appendChild(divOuter);
+            }
 
+            // If this it the first time with this node create a number
+            // display widget with document.createElement() and such.
+            var d = document.getElementById(node + '_' + 'throughput');
+            if(d === null) create4NumberDisplays();
 
+            function setValue(name, n) {
+                document.getElementById(node + '_' + name).innerHTML = data[name].toFixed(n).toString();
+            }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            setValue('throughput', 1);
+            setValue('per', 3);
+            setValue('totalThroughput', 1);
+            setValue('totalPER', 3);
 		});
 	}
-        
+
 	thisModule.launchCRTS = function(lastDigitsIP, parameters) {
 		var crtsParams={};
 		crtsParams.nodeID = parseInt(lastDigitsIP);
@@ -1284,11 +1322,6 @@ return d.opacity;
 		crtsParams.params = parameters;
 		
 		socket.emit('launchCRTS', crtsParams);
-		
-		// Get the response from the server
-		socket.on('crtsMetrics', function(data) {
-			console.log('CRTS METRICS: '+data.toString());
-		});
 	}
 	
 	thisModule.fit = function () {

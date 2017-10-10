@@ -1484,6 +1484,8 @@ void ExtensibleCognitiveRadio::reset_rx_stats(){
   pthread_mutex_unlock(&rx_params_mutex);
 }
 
+// I'm guessing that there will be 0 or 1 frame added with
+// each call of this function.
 void ExtensibleCognitiveRadio::update_rx_stats(bool frame_received){
   // static variables only needed by this function to track statistics
   static std::vector<struct timeval> time_stamp;
@@ -1493,7 +1495,7 @@ void ExtensibleCognitiveRadio::update_rx_stats(bool frame_received){
   static std::vector<int> payload_len;
   static std::vector<int> bit_errors;
   static std::vector<int> uhd_overflows;
-  
+
   static float sum_evm = 0.0;
   static float sum_rssi = 0.0;
   static int sum_payload_valid = 0;
@@ -1501,7 +1503,17 @@ void ExtensibleCognitiveRadio::update_rx_stats(bool frame_received){
   static int sum_bit_errors = 0;
   static int sum_valid_bytes = 0;
   static int sum_uhd_overflows = 0;
-  
+
+  // These are totals for the whole CRTS run,
+  // not just the tracking_period (rolling average values):
+  static int64_t total_valid_bytes = 0;
+  static int64_t total_payload_valid = 0;
+  static int64_t total_frames = 0;
+  // start_time is the time when we started to
+  // get the total_* measures.
+  static timeval start_time = { 0, 0 };
+
+
   static int N = 0; // number of valid data points (frames received)
   static int K = 0; // 
   static int ind_first = 0;
@@ -1525,6 +1537,18 @@ void ExtensibleCognitiveRadio::update_rx_stats(bool frame_received){
     uhd_overflows.resize(K,0);
   }
 
+  // update tracking period since it can be modified
+  struct timeval stat_tracking_period;
+  stat_tracking_period.tv_sec = (time_t)rx_stat_tracking_period;
+  stat_tracking_period.tv_usec = (suseconds_t)(fmod(rx_stat_tracking_period,1.0)*1e6);
+
+  // begin_time is the timeval for earliest time that will be considered in the
+  // rolling average statistics
+  struct timeval time_now;
+  gettimeofday(&time_now, NULL);
+  struct timeval begin_time;
+  timersub(&time_now, &stat_tracking_period, &begin_time);
+
   // reset all sums and counter if flag is set
   if (reset_rx_stats_flag){
     sum_evm = 0.0;
@@ -1537,18 +1561,20 @@ void ExtensibleCognitiveRadio::update_rx_stats(bool frame_received){
     N = 0;
     ind_first = 0;
     reset_rx_stats_flag = false;
+    // lance added 3 lines
+    total_valid_bytes = 0;
+    total_payload_valid = 0;
+    total_frames = 0;
+    memcpy(&start_time, &begin_time, sizeof(start_time));
   }
-  
-  // update tracking period since it can be modified
-  struct timeval stat_tracking_period;
-  stat_tracking_period.tv_sec = (time_t)rx_stat_tracking_period;
-  stat_tracking_period.tv_usec = (suseconds_t)(fmod(rx_stat_tracking_period,1.0)*1e6);
+  else if(start_time.tv_sec == 0 && start_time.tv_usec == 0)
+    memcpy(&start_time, &begin_time, sizeof(start_time));
 
-  // compute timeval for earliest time that will be considered in the statistics
-  struct timeval time_now;
-  gettimeofday(&time_now, NULL);
-  struct timeval begin_time;
-  timersub(&time_now, &stat_tracking_period, &begin_time);
+
+  // Current total time for the whole CRTS run.
+  float total_time = time_now.tv_sec - start_time.tv_sec +
+      ((float)(time_now.tv_usec) - (float)(start_time.tv_usec))/1.0e6F;
+
 
   // remove any old data points from consideration
   while(timercmp(&time_stamp[ind_first], &begin_time, <) && N>0){
@@ -1568,6 +1594,12 @@ void ExtensibleCognitiveRadio::update_rx_stats(bool frame_received){
   }
 
   if (frame_received) {
+
+    // TODO: Someone has never heard of what a memory leak is
+    // and what a circular buffer is.
+    
+    total_frames += 1;
+
     // resize memory if needed
     N++; 
     if (N>K) {
@@ -1634,8 +1666,10 @@ void ExtensibleCognitiveRadio::update_rx_stats(bool frame_received){
     sum_evm += evm[ind_last];
     sum_rssi += rssi[ind_last];
     sum_payload_valid += payload_valid[ind_last];
+    total_payload_valid += payload_valid[ind_last];
     sum_payload_len += payload_len[ind_last];
     sum_valid_bytes += payload_valid[ind_last]*payload_len[ind_last];
+    total_valid_bytes += payload_valid[ind_last]*payload_len[ind_last];
     sum_bit_errors += bit_errors[ind_last];
     sum_uhd_overflows += uhd_overflows[ind_last];
   }
@@ -1644,6 +1678,10 @@ void ExtensibleCognitiveRadio::update_rx_stats(bool frame_received){
   pthread_mutex_lock(&rx_params_mutex);    
   rx_stats.frames_received = N;
   rx_stats.valid_frames = sum_payload_valid;
+  if(total_frames != 0)
+    rx_stats.totalPER = (float)(total_frames-total_payload_valid)/(float)total_frames;
+  else
+    rx_stats.totalPER = 1.0F;
   if (N > 0) {
     rx_stats.evm_dB = 10.0*log10(sum_evm/(float)N);
     rx_stats.rssi_dB = 10.0*log10(sum_rssi/(float)N);
@@ -1656,6 +1694,7 @@ void ExtensibleCognitiveRadio::update_rx_stats(bool frame_received){
     rx_stats.per = 1.0;
   }
   rx_stats.throughput = 8.0*(float)sum_valid_bytes/rx_stat_tracking_period;
+  rx_stats.totalThroughput = 8.0*(float)total_valid_bytes/total_time;
   if (sum_payload_len > 0)
     rx_stats.ber = (1.0+overhead)*(float)sum_bit_errors/(8.0*sum_payload_len);
   else

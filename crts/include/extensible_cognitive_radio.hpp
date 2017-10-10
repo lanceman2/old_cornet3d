@@ -516,6 +516,8 @@ public:
     float ber;
     float throughput;
     int uhd_overflows;
+    float totalThroughput;
+    float totalPER; /* Net/Total packet error rate */
   };
 
   //=================================================================================
