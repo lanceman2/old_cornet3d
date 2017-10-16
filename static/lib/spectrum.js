@@ -1256,10 +1256,9 @@ return d.opacity;
             var node = data.node.toString();
 
             if(data.node === undefined ||
-                data.throughput === undefined ||
-                data.per === undefined ||
                 data.totalThroughput === undefined ||
-                data.totalPER === undefined) {
+                data.totalPER === undefined ||
+                data.totalBits === undefined) {
                 alert("Bad 'crtsMetrics' recieved");
                 return;
             }
@@ -1288,26 +1287,28 @@ return d.opacity;
                 title.className = "PM_title";
                 title.innerHTML = "Received on Node " + node + ' - ' + m_teamNames[node];
                 divOuter.appendChild(title);
-                divOuter.appendChild(createNumberDisplay('throughput', 'Throughput (bps)'));
-                divOuter.appendChild(createNumberDisplay('per', 'Packet Error Rate'));
-                divOuter.appendChild(createNumberDisplay('totalThroughput', 'Total Throughput (bps)'));
-                divOuter.appendChild(createNumberDisplay('totalPER', 'Total Packet Error Rate'));
+                //divOuter.appendChild(createNumberDisplay('throughput', 'Short Term - Throughput (bps)'));
+                //divOuter.appendChild(createNumberDisplay('per', 'Short Term - Packet Error Rate'));
+                divOuter.appendChild(createNumberDisplay('totalThroughput', 'Scenanio Average - Throughput (bps)'));
+                divOuter.appendChild(createNumberDisplay('totalPER', 'Scenanio Average - Packet Error Rate'));
+                divOuter.appendChild(createNumberDisplay('totalBits', 'Scenanio Total (bits)'));
                 document.getElementById("performanceMetricDiv").appendChild(divOuter);
             }
 
             // If this it the first time with this node create a number
             // display widget with document.createElement() and such.
-            var d = document.getElementById(node + '_' + 'throughput');
+            var d = document.getElementById(node + '_' + 'totalThroughput');
             if(d === null) create4NumberDisplays();
 
             function setValue(name, n) {
                 document.getElementById(node + '_' + name).innerHTML = data[name].toFixed(n).toString();
             }
 
-            setValue('throughput', 1);
-            setValue('per', 3);
+            //setValue('throughput', 1);
+            //setValue('per', 3);
             setValue('totalThroughput', 1);
             setValue('totalPER', 3);
+            setValue('totalBits', 0);
 		});
 	}
 

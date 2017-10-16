@@ -113,11 +113,12 @@ void SC_CORNET_Display::execute() {
             float bandwidth; // or PER
             float totalThroughput;
             float totalPER;
+            float totalBits;
         } fs;
 
         fs.totalThroughput = 0.0F;
         fs.totalPER = 0.0F;
-
+        fs.totalBits = 0.0F;
 
         switch (fb.fb_type) 
         {
@@ -162,6 +163,7 @@ void SC_CORNET_Display::execute() {
                 // TODO: next two values are bogus for testing
                 fs.totalThroughput = rx_stats.totalThroughput;
                 fs.totalPER = rx_stats.totalPER;
+                fs.totalBits = rx_stats.totalBits;
 
                 send(TCP_CORNET_Display, (char*)&fs, sizeof(fs), 0);
                 printf("node: %u, throughput: %f per: %f\n", fb.node, rx_stats.throughput, rx_stats.per);

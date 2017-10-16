@@ -590,16 +590,16 @@ def scoreboardThreadRunner(nodeID):
     gotThroughPut = False
     while scoreboardConnected == True:
         # this is pretty crappy code.
-        receivedData = crtsControllerSockets[nodeID].recv(24)
+        receivedData = crtsControllerSockets[nodeID].recv(28)
         #print 'len(receivedData):', len(receivedData)
         if not receivedData: 
             break
-        elif len(receivedData) != 24:
-            print LINE(), 'read:', str(len(receivedData)), 'bytes  not 24'
+        elif len(receivedData) != 28:
+            print LINE(), 'read:', str(len(receivedData)), 'bytes  not 28'
             continue
         else:
             #print LINE(), 'read:', str(len(receivedData))
-            unpacked = struct.unpack('=iiffff', receivedData)
+            unpacked = struct.unpack('=iifffff', receivedData)
             #unpacked[0] will hold the type of feedback
             #0 = packet error rate
             if unpacked[0] == 0: # as defined in SC_CORNET_Display.cpp
@@ -626,6 +626,7 @@ def scoreboardThreadRunner(nodeID):
                 new_throughput_data['per'] = unpacked[3]
                 new_throughput_data['totalThroughput'] = unpacked[4]
                 new_throughput_data['totalPER'] = unpacked[5]
+                new_throughput_data['totalBits'] =  unpacked[6]
                 socketio.emit('crtsMetrics',  new_throughput_data, room=room)
                 if not gotThroughPut:
                     print 'starting throughput update:', str(new_throughput_data)

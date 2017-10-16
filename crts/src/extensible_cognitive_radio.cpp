@@ -1673,11 +1673,14 @@ void ExtensibleCognitiveRadio::update_rx_stats(bool frame_received){
     sum_bit_errors += bit_errors[ind_last];
     sum_uhd_overflows += uhd_overflows[ind_last];
   }
-  
+
   // update statistics
   pthread_mutex_lock(&rx_params_mutex);    
   rx_stats.frames_received = N;
   rx_stats.valid_frames = sum_payload_valid;
+  // TODO: See the frame size a variable that is defined anywhere.
+  // total bits = (bytes/frame)*(bits/byte)*frames
+  rx_stats.totalBits = 8.0*total_valid_bytes;
   if(total_frames != 0)
     rx_stats.totalPER = (float)(total_frames-total_payload_valid)/(float)total_frames;
   else

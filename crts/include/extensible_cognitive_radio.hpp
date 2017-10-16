@@ -517,7 +517,8 @@ public:
     float throughput;
     int uhd_overflows;
     float totalThroughput;
-    float totalPER; /* Net/Total packet error rate */
+    float totalPER; /* Net/Total packet error rate in scenario */
+    float totalBits; /* Net/Total bits sent in scenario */
   };
 
   //=================================================================================

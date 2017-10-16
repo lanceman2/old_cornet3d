@@ -19,7 +19,7 @@ function GetTutorialConfig()
                      controllable:  true},
                     {nodeId: 'node2',
                      role: 'receiver',
-                     controllable:  false}
+                     controllable:  true}
                   ],
            scenarioFile: "cornet_3d_demo.cfg", 
            gameControls: [g_cornetControls.MOD, 
