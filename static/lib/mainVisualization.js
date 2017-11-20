@@ -5,7 +5,7 @@
  */
 			var ipNetworkAddress = '192.168.1.';
 			
-			var transparams={f: '855000000', n: 256, b: '10000000', r:12, s: 1};
+			var transparams={f: '865000000', n: 256, b: '12000000', r:12, s: 1};
                         
                         function DisplayGameControls()
                           {

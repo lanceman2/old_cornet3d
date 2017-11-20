@@ -44,7 +44,7 @@ var spectrum = (function () {
 	var socket;
 	//var crtsSocket;
 	//in MHZ
-	var centerF_=855;
+	var centerF_=865;
 	thisModule.bandwidth_=12;
 	thisModule.lowBound_=centerF_-thisModule.bandwidth_/2;
 	thisModule.selectedCenter=0;
