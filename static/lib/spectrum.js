@@ -294,9 +294,12 @@ var spectrum = (function () {
 	    }
 	    i = Math.floor(h * 6);
 	    f = h * 6 - i;
-	    p = 0;//1 * (1 - 1);//p = v * (1 - s);
-	    q = (1 - f);//q = v * (1 - f * s);
-	    t = (1 - (1 - f));//t = v * (1 - (1 - f) * s);
+	    //p = 0;
+            p = v * (1 - s);
+	    //q = (1 - f);
+            q = v * (1 - f * s);
+	    //t = (1 - (1 - f));
+            t = v * (1 - (1 - f) * s);
 	    switch (i % 6) {
 	        case 0: r = v, g = t, b = p; break;
 	        case 1: r = q, g = v, b = p; break;
@@ -306,7 +309,8 @@ var spectrum = (function () {
 	        case 5: r = v, g = p, b = q; break;
 	    }
             
-	    return (1-(r+g+b)/3) + ' ' + (1-(r+g+b)/3)+ ' ' + (1-(r+g+b)/3);
+	    //return (1-(r+g+b)/3) + ' ' + (1-(r+g+b)/3)+ ' ' + (1-(r+g+b)/3);
+            return r + ' ' + g + ' ' + b;
 	}
 
 	function checkIfZeroes(data)
@@ -317,49 +321,43 @@ var spectrum = (function () {
 		}
 		return true;
 	}
-	
-	function dataToColor(data){
+
+
+		function dataToColor(data){
 		var colorArray=[];
-		
-          /* var data_pos_unit =20.25/(data.length - 1);//20/data.length;//dividing the width of the grid in the x3d scene by the length of data.
-            var point_pos = 0;// data point position in the scene
-            if (trans_x[0].translation){
-		for (var i=0; i<data.length; i++) {
-                    //if (data[i]>= 0){data[i]=0;};
-                    
-                    
-                    point_pos = data_pos_unit * i;
-                   // alert(trans_x[0].translation+" "+point_pos);
-                   //diffue_color = ['green','blue','red','teal','lightsalmon','orange'];// for coloring the boxes
-                   for(var j=0; j<trans_x.length; j++)
-                   {
-                    if(point_pos >(trans_x[j].translation - 0.1 - trans_x[j].bandwidth) && point_pos <= (trans_x[j].translation + 0.1 + trans_x[j].bandwidth))
-                        {
-                            if(j<diffue_color.length)
-                            {
-                                if (diffue_color[j] == 'blue')     {colorArray.push(0+' '+109+ ' '+219);}
-                                else if(diffue_color[j] == 'green'){colorArray.push(0+' '+146+ ' '+146);}
-                                else if(diffue_color[j] == 'red')  {colorArray.push(146+' '+0+ ' '+0);}
-                                else if(diffue_color[j] == 'teal') {colorArray.push(0+' '+128+ ' '+128);}
-                                else if(diffue_color[j] == 'lightsalmon')  {colorArray.push(255+' '+160+ ' '+122);}
-                                else if(diffue_color[j] == 'orange')  {colorArray.push(219+' '+209+ ' '+0);}
-                                else       {colorArray.push(data[i]/2+' '+data[i]/2+ ' '+data[i]/2);}
-                            }
-                        }
-                    }//for(var j=0; j<trans_x.length; j++)
+			for (var i=0; i<data.length; i++) {
+			var c=(240-(data[i]*240/m_maxval))/360;
+			if (c<0){
+				c=0;
+			} else if (c>(2/3)){
+				c=(2/3);
+			}
+			
+			var low=m_overlay.selLow;
+			var high=m_overlay.selHigh;
+			
+			low=Math.ceil(low*data.length);
+			high=Math.floor(high*data.length);
+						
+			if(i>=low && i<=high) {
+				colorArray.push(HSVtoRGB(5/6, 1, 1));
+			} else {
+				colorArray.push(HSVtoRGB(c, 1, 1));
+			}
 			
 		}
-            }// end if (trans_x[0].translation)
-          else{*/
-                for (var i=0; i<data.length; i++) 
-                {colorArray.push(data[i]/2+' '+data[i]/2+ ' '+data[i]/2);}
-              // }
-                
-                
-                
 		return colorArray;
 	}
+        /*
 	
+
+	function dataToColor(data){
+		var colorArray=[];
+                 for (var i=0; i<data.length; i++) 
+                {colorArray.push(data[i]/2+' '+data[i]/2+ ' '+data[i]/2);}
+		return colorArray;
+	}
+	*/
 	
 	thisModule.rand=false;
 	
