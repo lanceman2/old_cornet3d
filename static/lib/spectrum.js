@@ -704,8 +704,8 @@ return d.opacity;
                             for(var j =0; j<teams_names.length; ++j){
                                 if (data[i].team_name == teams_names[j])
                                     {
-                                        var dif_color = diffue_color[j];
-                                        var  translation_y = trans_y[j];
+                          //              var dif_color = diffue_color[j];
+                          //              var  translation_y = trans_y[j];
                                     }
                                 }
                             
@@ -747,7 +747,7 @@ return d.opacity;
 		});
                 //var new_json ='';
                 var obj='';
-                var data_json = '[{"bandwidth": 2000000, "frequency": 750000000, "node": 0}]';
+                var data_json = '[{"bandwidth": 1000000, "frequency": 865000000, "node": 0}]';
                 var textFile = null;
                      function makeTextFile (text) {
                         var data = new Blob([text], {type: 'text/plain'});

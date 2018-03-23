@@ -48,9 +48,9 @@ function GetDefaultValuesForAnEnabledNode()
                 ifec_text: 'CONV-V29',
                 ofec_value: '1', 
                 ofec_text: 'none', 
-                freq: '770',
+                freq: '865',
                 bandwidth: '1',
-                gain: '20'
+                gain: '0'
                 }
   return values; 
   }

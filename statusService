@@ -93,7 +93,7 @@ var server = http.createServer(function (request, response) {
 	    console.log("Barrier reached");
 	    var arrayResults=[];
         // make the first 12 nodes look like failures
-        var skip = 12;
+        var skip = 0;
 	    for (var key in results) {
             if(skip !== 0) { results[key] = 1; --skip; }
 		    console.log(key, results[key] + '\r\n');
